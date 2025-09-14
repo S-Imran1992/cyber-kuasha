@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbase Bot</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #1e1e1e;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    #chat-container {
+        width: 400px;
+        max-width: 90%;
+        background: #2c2c2c;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    #chat-box {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .message {
+        padding: 10px 15px;
+        border-radius: 20px;
+        max-width: 75%;
+        word-wrap: break-word;
+    }
+    .user {
+        background: #ff4b5c;
+        align-self: flex-end;
+    }
+    .bot {
+        background: #4b7bec;
+        align-self: flex-start;
+    }
+    #input-box {
+        display: flex;
+        border-top: 1px solid #444;
+    }
+    #input-box input {
+        flex: 1;
+        padding: 15px;
+        border: none;
+        outline: none;
+        background: #333;
+        color: #fff;
+        font-size: 16px;
+    }
+    #input-box button {
+        padding: 15px;
+        border: none;
+        background: #ff4b5c;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    #input-box button:hover {
+        background: #e63946;
+    }
+</style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div id="chat-box"></div>
+    <div id="input-box">
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button id="sendBtn">Send</button>
+    </div>
+</div>
+
+<script>
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+
+// Chatbase API info
+const API_URL = 'https://www.chatbase.co/api/chat/tuj9VPZlTJFR-xJcCFvw9';
+const anon_user_id = 'bd2dd09c-1129-4c0d-b51e-d7a9d5613c2f';
+const chatbotId = 'tuj9VPZlTJFR-xJcCFvw9';
+let conversationId = null;
+
+// Add message to chat
+function addMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', sender);
+    msgDiv.textContent = text;
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Send message to Chatbase API
+async function sendMessage(message) {
+    addMessage(message, 'user');
+
+    const payload = {
+        user: { anon_user_id },
+        timezone: "Asia/Dhaka",
+        chatbotId,
+        conversationId,
+        message,
+        clientInitialMessages: []
+    };
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        // Save conversationId if first time
+        if (!conversationId && data.conversationId) conversationId = data.conversationId;
+
+        let botMsg = '';
+        if (data?.f) {
+            // Combine bot message array into single string
+            botMsg = data.f[0].join(' ');
+        } else if (data?.message) {
+            botMsg = data.message;
+        } else {
+            botMsg = "I didn't understand that.";
+        }
+
+        addMessage(botMsg, 'bot');
+    } catch (err) {
+        console.error(err);
+        addMessage("Error: Could not reach Chatbase API", 'bot');
+    }
+}
+
+// Event listeners
+sendBtn.addEventListener('click', () => {
+    const text = userInput.value.trim();
+    if (text) {
+        sendMessage(text);
+        userInput.value = '';
+    }
+});
+
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendBtn.click();
+});
+
+// Initial greeting
+addMessage("Hello! How can I assist you today?", 'bot');
+</script>
+
+</body>
+</html>
